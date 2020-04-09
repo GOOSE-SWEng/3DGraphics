@@ -39,7 +39,7 @@ public class Model {
 	Group modelGroup; //Group containing all 3D Elements
 	Camera camera;
 	ArrayList<InteractivePoints> points = new ArrayList<InteractivePoints>(); //Arraylist of interactive points
-	
+	ArrayList<Sphere> spheres = new ArrayList<Sphere>(); //Arraylist of Sphere buttons
 	public Model(String url, int width, int height){
 		this.width = width; //Width of SubScene
 		this.height = height; //Height of SubScene
@@ -120,6 +120,14 @@ public class Model {
         modelGroup.setOnMouseEntered(e->timeline.pause());
         //Play when mouse is off model
         modelGroup.setOnMouseExited(e->timeline.play());
+        
+        modelGroup.setOnScroll(e->{
+        	if(e.getDeltaY() > 0) {
+        		scale(1.1,1.1,1.1);
+        	}else{
+        		scale(0.9,0.9,0.9);
+        	}
+        });
 
         //Set pivot points
         pivot.setX(modelGroup.getTranslateX());
@@ -132,11 +140,18 @@ public class Model {
 		return modelSubScene;
 	}
 	
+	
 	public void addPoints() {
+		for(int i=0;i<100;i++) {
+			
+		}
+		for(int i=0;i<100;i++) {
+			
+		}
 		points.add(new InteractivePoints(-160,-170,30));
-		points.add(new InteractivePoints(40,200,20));
-		points.add(new InteractivePoints(60,20,20));
-		points.add(new InteractivePoints(80,20,20));
+		points.add(new InteractivePoints(-40,200,100));
+		points.add(new InteractivePoints(60,-160,50));
+		points.add(new InteractivePoints(180,-100,90));
 		PhongMaterial mat = new PhongMaterial();
 		mat.setDiffuseColor(Color.rgb(180, 180, 0, 0.75));
 		Sphere point1 = new Sphere();
@@ -185,7 +200,7 @@ public class Model {
 	}
 	
 	//Scale function
-	public void scale(int x,int y, int z) {
+	public void scale(double x,double y, double z) {
 		modelGroup.getTransforms().add(new Scale(x,y,z));
 	}
 	
