@@ -20,47 +20,54 @@ import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Sphere;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 
 public class Model {
-	SubScene modelScene;
-	int width;
-	int height;
-	Group modelGroup;
-	ArrayList<InteractivePoints> points = new ArrayList<InteractivePoints>();
+	
+	/*
+	 * 3D Model from interactive mesh - InteractiveMesh.org
+	 * @author - Tom Pound
+	 * @date - 9/4/20
+	 * @Version - 1.2
+	 */
+	
+	SubScene modelScene; //Scene of the model
+	int width; //Width of SubScene
+	int height; //Height of SubScene
+	Group modelGroup; //Group containing all 3D Elements
+	Camera camera;
+	ArrayList<InteractivePoints> points = new ArrayList<InteractivePoints>(); //Arraylist of interactive points
 	
 	public Model(String url, int width, int height){
-		this.width = width;
-		this.height = height;
-		modelScene = createModel(url);
+		this.width = width; //Width of SubScene
+		this.height = height; //Height of SubScene
+		modelScene = createModel(url); //Create the and store scene
 	}
 	
 	//Method to create model scene
 	public SubScene createModel(String url) {
-		//TriangleMesh cylinderHeadMesh = null; //For 3DS models
-		//Node[] tdsMesh = null; //For STL models
-		
-		Camera camera = new PerspectiveCamera();
+		camera = new PerspectiveCamera(); //new camera for subscene
 		
 		//FOR 3DS MODELS
 		if(url.endsWith(".3ds")) {
-			ModelImporter tdsImporter = new TdsModelImporter();
+			ModelImporter tdsImporter = new TdsModelImporter(); //3DS importer
 			tdsImporter.read(url);
-			Node[] tdsMesh = (Node[]) tdsImporter.getImport();
+			Node[] tdsMesh = (Node[]) tdsImporter.getImport(); //Store in a node array
 			tdsImporter.close();
 			modelGroup = new Group();
 			modelGroup.getChildren().addAll(tdsMesh);
 	        addPoints(); //Add clickable points
 		}
-		//FOR STl MODELS
+		//FOR STL MODELS
 		else if(url.endsWith(".stl")) {
-			StlMeshImporter stlImporter = new StlMeshImporter();
+			StlMeshImporter stlImporter = new StlMeshImporter(); //STL importer
 	        stlImporter.read(url);
-	        TriangleMesh cylinderHeadMesh = stlImporter.getImport();
-	        MeshView cylinderHeadMeshView = new MeshView();
-	        cylinderHeadMeshView.setMaterial(new PhongMaterial(Color.GRAY));
-	        cylinderHeadMeshView.setMesh(cylinderHeadMesh);
+	        TriangleMesh cylinderHeadMesh = stlImporter.getImport(); //Store in a mesh
+	        MeshView cylinderHeadMeshView = new MeshView(); //Creates new Mesh view
+	        cylinderHeadMeshView.setMaterial(new PhongMaterial(Color.GRAY)); //Sets material of model
+	        cylinderHeadMeshView.setMesh(cylinderHeadMesh); //Sets the mesh for the mesh view
 	        stlImporter.close();
 			modelGroup = new Group();
 			modelGroup.getChildren().addAll(cylinderHeadMeshView);
@@ -81,11 +88,11 @@ public class Model {
 		
 		modelGroup.getTransforms().add(new Rotate(90, Rotate.X_AXIS));
 
-        Translate pivot = new Translate();
+        Translate pivot = new Translate(); //Create pivot
+        //Setup rotates
         Rotate yRotate = new Rotate(0, Rotate.Y_AXIS);
         Rotate xRotate = new Rotate(0, Rotate.X_AXIS);
         Rotate zRotate = new Rotate(0, Rotate.Z_AXIS);
-
 		camera.getTransforms().addAll(pivot, yRotate, zRotate, xRotate);
 		camera.getTransforms().add(new Translate(-640,-360,-300));
 		
@@ -93,28 +100,33 @@ public class Model {
         Timeline timeline = new Timeline(
                 new KeyFrame(
                         Duration.seconds(0), 
-                        new KeyValue(yRotate.angleProperty(), 0)
-                        //new KeyValue(zRotate.angleProperty(), 0),
-                        //new KeyValue(xRotate.angleProperty(), 0)
+                        new KeyValue(yRotate.angleProperty(), 0) //Start with angle of 0
                 ),
                 new KeyFrame(
                         Duration.seconds(15), 
-                        new KeyValue(yRotate.angleProperty(), 360)
-                        //new KeyValue(zRotate.angleProperty(), 360),
-                        //new KeyValue(xRotate.angleProperty(), 360)
+                        new KeyValue(yRotate.angleProperty(), 360) //Finish with angle of 360
                 )
         );
-        timeline.setCycleCount(Timeline.INDEFINITE);
-        timeline.play();
+        timeline.setCycleCount(Timeline.INDEFINITE); //Loop animation
+        timeline.play(); //Run animation
         
+        //Return 3D mouse click point
         modelGroup.setOnMouseClicked(e->{
         	PickResult pr = e.getPickResult();
             System.out.println(pr.getIntersectedPoint());
         });
+        
+        //Pause when mouse is on model
+        modelGroup.setOnMouseEntered(e->timeline.pause());
+        //Play when mouse is off model
+        modelGroup.setOnMouseExited(e->timeline.play());
 
+        //Set pivot points
         pivot.setX(modelGroup.getTranslateX());
         pivot.setY(modelGroup.getTranslateY());
         pivot.setZ(modelGroup.getTranslateZ());
+        
+        //Create subscene
 		SubScene modelSubScene = new SubScene(modelGroup, width, height, true, SceneAntialiasing.BALANCED);
 		modelSubScene.setCamera(camera); //Apply the camera
 		return modelSubScene;
@@ -125,12 +137,6 @@ public class Model {
 		points.add(new InteractivePoints(40,200,20));
 		points.add(new InteractivePoints(60,20,20));
 		points.add(new InteractivePoints(80,20,20));
-		points.add(new InteractivePoints(100,20,20));
-		points.add(new InteractivePoints(120,20,20));
-		points.add(new InteractivePoints(140,20,20));
-		points.add(new InteractivePoints(160,20,20));
-		points.add(new InteractivePoints(180,20,20));
-		points.add(new InteractivePoints(200,200,200));
 		PhongMaterial mat = new PhongMaterial();
 		mat.setDiffuseColor(Color.rgb(180, 180, 0, 0.75));
 		Sphere point1 = new Sphere();
@@ -156,14 +162,31 @@ public class Model {
 		modelGroup.getChildren().addAll(point1, point2,point3, point4);
 	}
 	
-	public void rotate(int Xangle, int Yangle, int Zangle) {
+	//Rotate Camera function
+	public void rotateCam(int Xangle, int Yangle, int Zangle) {
 		modelScene.getCamera().getTransforms().add(new Rotate(Xangle, Rotate.X_AXIS));
 		modelScene.getCamera().getTransforms().add(new Rotate(Yangle, Rotate.Y_AXIS));
 		modelScene.getCamera().getTransforms().add(new Rotate(Zangle, Rotate.Z_AXIS));
 	}
-	
-	public void move(int x,int y, int z) {
+	//Move Camera function
+	public void moveCam(int x,int y, int z) {
 		modelScene.getCamera().getTransforms().add(new Translate(x,y,z));
+	}
+	
+	//Rotate function
+	public void rotate(int Xangle, int Yangle, int Zangle) {
+		modelGroup.getTransforms().add(new Rotate(Xangle, Rotate.X_AXIS));
+		modelGroup.getTransforms().add(new Rotate(Yangle, Rotate.Y_AXIS));
+		modelGroup.getTransforms().add(new Rotate(Zangle, Rotate.Z_AXIS));
+	}
+	//Move function
+	public void move(int x,int y, int z) {
+		modelGroup.getTransforms().add(new Translate(x,y,z));
+	}
+	
+	//Scale function
+	public void scale(int x,int y, int z) {
+		modelGroup.getTransforms().add(new Scale(x,y,z));
 	}
 	
 	public SubScene getModelScene() {
