@@ -38,35 +38,49 @@ public class Model {
 	
 	//Method to create model scene
 	public SubScene createModel(String url) {
-		TriangleMesh cylinderHeadMesh = null;
-		Node[] tdsMesh = null;
+		//TriangleMesh cylinderHeadMesh = null; //For 3DS models
+		//Node[] tdsMesh = null; //For STL models
+		
+		Camera camera = new PerspectiveCamera();
+		
+		//FOR 3DS MODELS
 		if(url.endsWith(".3ds")) {
 			ModelImporter tdsImporter = new TdsModelImporter();
 			tdsImporter.read(url);
-			tdsMesh = (Node[]) tdsImporter.getImport();
+			Node[] tdsMesh = (Node[]) tdsImporter.getImport();
 			tdsImporter.close();
+			modelGroup = new Group();
+			modelGroup.getChildren().addAll(tdsMesh);
+	        addPoints(); //Add clickable points
 		}
+		//FOR STl MODELS
 		else if(url.endsWith(".stl")) {
 			StlMeshImporter stlImporter = new StlMeshImporter();
 	        stlImporter.read(url);
-	        cylinderHeadMesh = stlImporter.getImport();
+	        TriangleMesh cylinderHeadMesh = stlImporter.getImport();
 	        MeshView cylinderHeadMeshView = new MeshView();
 	        cylinderHeadMeshView.setMaterial(new PhongMaterial(Color.GRAY));
 	        cylinderHeadMeshView.setMesh(cylinderHeadMesh);
 	        stlImporter.close();
+			modelGroup = new Group();
+			modelGroup.getChildren().addAll(cylinderHeadMeshView);
+	        addPoints(); //Add clickable points
+		}
+		else if(url.endsWith(".obj")) {
+			System.out.print("The OBJ file type is not supported right now.");
+		}
+		else if(url.endsWith(".X3D")) {
+			System.out.print("The X3D file type is not supported right now.");
 		}
 		else {
 			System.out.println("Unable to open: " + url);
 		}
+		
         // Create Shape3D
 		System.out.println("Model Imported");
 		
-		Camera camera = new PerspectiveCamera();
-		modelGroup = new Group();
-		modelGroup.getChildren().addAll(tdsMesh);
-		addPoints();
-        modelGroup.getTransforms().add(new Rotate(90, Rotate.X_AXIS));
-		
+		modelGroup.getTransforms().add(new Rotate(90, Rotate.X_AXIS));
+
         Translate pivot = new Translate();
         Rotate yRotate = new Rotate(0, Rotate.Y_AXIS);
         Rotate xRotate = new Rotate(0, Rotate.X_AXIS);
@@ -75,18 +89,19 @@ public class Model {
 		camera.getTransforms().addAll(pivot, yRotate, zRotate, xRotate);
 		camera.getTransforms().add(new Translate(-640,-360,-300));
 		
+		//Setup Animation
         Timeline timeline = new Timeline(
                 new KeyFrame(
                         Duration.seconds(0), 
-                        new KeyValue(yRotate.angleProperty(), 0),
-                        new KeyValue(zRotate.angleProperty(), 0),
-                        new KeyValue(xRotate.angleProperty(), 0)
+                        new KeyValue(yRotate.angleProperty(), 0)
+                        //new KeyValue(zRotate.angleProperty(), 0),
+                        //new KeyValue(xRotate.angleProperty(), 0)
                 ),
                 new KeyFrame(
                         Duration.seconds(15), 
-                        new KeyValue(yRotate.angleProperty(), 360),
-                        new KeyValue(zRotate.angleProperty(), 360),
-                        new KeyValue(xRotate.angleProperty(), 360)
+                        new KeyValue(yRotate.angleProperty(), 360)
+                        //new KeyValue(zRotate.angleProperty(), 360),
+                        //new KeyValue(xRotate.angleProperty(), 360)
                 )
         );
         timeline.setCycleCount(Timeline.INDEFINITE);
@@ -97,13 +112,11 @@ public class Model {
             System.out.println(pr.getIntersectedPoint());
         });
 
-        
         pivot.setX(modelGroup.getTranslateX());
         pivot.setY(modelGroup.getTranslateY());
         pivot.setZ(modelGroup.getTranslateZ());
-        
 		SubScene modelSubScene = new SubScene(modelGroup, width, height, true, SceneAntialiasing.BALANCED);
-		modelSubScene.setCamera(camera);
+		modelSubScene.setCamera(camera); //Apply the camera
 		return modelSubScene;
 	}
 	

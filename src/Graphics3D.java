@@ -9,10 +9,6 @@ public class Graphics3D extends Application{
 	int height = 720;
 	static String url = "src/3D_Models/HST-3DS/hst.3ds";
 	
-	public Graphics3D(){
-
-	}
-	
 	@Override
 	public void start(Stage stage) throws Exception {
 		System.out.println("Start Running...");
