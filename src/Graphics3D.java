@@ -1,13 +1,18 @@
+import java.util.ArrayList;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 public class Graphics3D extends Application{
+	///////////////////// TEST BENCH //////////////////////////
 	Stage primaryStage;
 	int width = 1280;
 	int height = 720;
 	static String url = "src/3D_Models/HST-3DS/hst.3ds";
+	
+	ArrayList<Model> models = new ArrayList<Model>();
 	
 	@Override
 	public void start(Stage stage) throws Exception {
@@ -16,7 +21,13 @@ public class Graphics3D extends Application{
 		primaryStage.setTitle("3D Test");
 		BorderPane bp = new BorderPane();
 		//SubScene modelScene;
-		Model telescope = new Model(url, width, height);
+		
+		
+		
+		Graphics3DLayer g3dLayer = new Graphics3DLayer(width, height, models);
+		Model telescope = new Model(url, 640, 360, width, height, 200, 200);
+		models.add(telescope);
+		
 
 		bp.setCenter(telescope.getModelScene());
 		telescope.rotate(0,0,0);

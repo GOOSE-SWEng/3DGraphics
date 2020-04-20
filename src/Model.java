@@ -36,13 +36,22 @@ public class Model {
 	SubScene modelScene; //Scene of the model
 	int width; //Width of SubScene
 	int height; //Height of SubScene
+	int paneWidth;
+	int paneHeight;
+	int xStart;
+	int yStart;
 	Group modelGroup; //Group containing all 3D Elements
 	Camera camera;
 	ArrayList<InteractivePoints> points = new ArrayList<InteractivePoints>(); //Arraylist of interactive points
 	ArrayList<Sphere> spheres = new ArrayList<Sphere>(); //Arraylist of Sphere buttons
-	public Model(String url, int width, int height){
-		this.width = width; //Width of SubScene
-		this.height = height; //Height of SubScene
+	
+	public Model(String url, int modelWidth, int modelHeight, int paneWidth, int paneHeight, int xStart, int yStart){
+		this.width = modelWidth; //Width of SubScene
+		this.height = modelHeight; //Height of SubScene
+		this.paneWidth = paneWidth;
+		this.paneHeight = paneHeight;
+		this.xStart = xStart;
+		this.yStart = yStart;
 		modelScene = createModel(url); //Create the and store scene
 	}
 	
@@ -71,7 +80,7 @@ public class Model {
 	        stlImporter.close();
 			modelGroup = new Group();
 			modelGroup.getChildren().addAll(cylinderHeadMeshView);
-	        addPoints(); //Add clickable points
+	        //addPoints(); //Add clickable points
 		}
 		else if(url.endsWith(".obj")) {
 			System.out.print("The OBJ file type is not supported right now.");
@@ -108,7 +117,7 @@ public class Model {
                 )
         );
         timeline.setCycleCount(Timeline.INDEFINITE); //Loop animation
-        timeline.play(); //Run animation
+        //timeline.play(); //Run animation
         
         //Return 3D mouse click point
         modelGroup.setOnMouseClicked(e->{
@@ -177,6 +186,11 @@ public class Model {
 		modelGroup.getChildren().addAll(point1, point2,point3, point4);
 	}
 	
+	
+	
+	
+	public 
+	
 	//Rotate Camera function
 	public void rotateCam(int Xangle, int Yangle, int Zangle) {
 		modelScene.getCamera().getTransforms().add(new Rotate(Xangle, Rotate.X_AXIS));
@@ -212,6 +226,22 @@ public class Model {
 		this.modelScene = modelScene;
 	}
 	
+	public int getxStart() {
+		return xStart;
+	}
+
+	public void setxStart(int xStart) {
+		this.xStart = xStart;
+	}
+
+	public int getyStart() {
+		return yStart;
+	}
+
+	public void setyStart(int yStart) {
+		this.yStart = yStart;
+	}
+
 	public void clickOnModel() {
         System.out.println();
 	}
