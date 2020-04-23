@@ -9,6 +9,8 @@ public class Graphics3DLayer {
 	ArrayList<Model> models = new ArrayList<Model>();
 	SubScene window;
 	
+	
+	
 	public Graphics3DLayer(int width,int height, ArrayList<Model> models){
 		this.paneHeight = height;
 		this.paneWidth = width;
@@ -20,7 +22,7 @@ public class Graphics3DLayer {
 	public void add(String url, int modelWidth, int modelHeight, int xStart, int yStart) {
 		Model model =  new Model(url, modelWidth, modelHeight, paneWidth, paneHeight, xStart, yStart);
 		models.add(model);
-		sp.getChildren().add(models.get(index))
+		sp.getChildren().add(model.getModelScene());
 	}
 	
 	public void remove(Graphics3D object) {

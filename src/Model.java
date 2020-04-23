@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import com.interactivemesh.jfx.importer.ModelImporter;
 import com.interactivemesh.jfx.importer.stl.StlMeshImporter;
 import com.interactivemesh.jfx.importer.tds.TdsModelImporter;
+import com.sun.media.sound.ModelWavetable;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -13,7 +14,9 @@ import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.input.PickResult;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.MeshView;
@@ -40,6 +43,8 @@ public class Model {
 	int paneHeight;
 	int xStart;
 	int yStart;
+	Timeline timeline;
+	Canvas canvas;
 	Group modelGroup; //Group containing all 3D Elements
 	Camera camera;
 	ArrayList<InteractivePoints> points = new ArrayList<InteractivePoints>(); //Arraylist of interactive points
@@ -103,10 +108,10 @@ public class Model {
         Rotate xRotate = new Rotate(0, Rotate.X_AXIS);
         Rotate zRotate = new Rotate(0, Rotate.Z_AXIS);
 		camera.getTransforms().addAll(pivot, yRotate, zRotate, xRotate);
-		camera.getTransforms().add(new Translate(-640,-360,-300));
+		camera.getTransforms().add(new Translate(-width/2,-height/2,-300));
 		
 		//Setup Animation
-        Timeline timeline = new Timeline(
+        timeline = new Timeline(
                 new KeyFrame(
                         Duration.seconds(0), 
                         new KeyValue(yRotate.angleProperty(), 0) //Start with angle of 0
@@ -117,7 +122,7 @@ public class Model {
                 )
         );
         timeline.setCycleCount(Timeline.INDEFINITE); //Loop animation
-        //timeline.play(); //Run animation
+        timeline.play(); //Run animation
         
         //Return 3D mouse click point
         modelGroup.setOnMouseClicked(e->{
@@ -149,6 +154,9 @@ public class Model {
 		return modelSubScene;
 	}
 	
+	public Group get() {
+		return modelGroup;
+	}
 	
 	public void addPoints() {
 		for(int i=0;i<100;i++) {
@@ -185,11 +193,6 @@ public class Model {
 		point4.getTransforms().add(new Translate(points.get(3).getX(),points.get(3).getY(),points.get(3).getZ()));
 		modelGroup.getChildren().addAll(point1, point2,point3, point4);
 	}
-	
-	
-	
-	
-	public 
 	
 	//Rotate Camera function
 	public void rotateCam(int Xangle, int Yangle, int Zangle) {
