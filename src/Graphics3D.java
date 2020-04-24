@@ -6,9 +6,7 @@ import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class Graphics3D extends Application{
@@ -16,8 +14,9 @@ public class Graphics3D extends Application{
 	Stage primaryStage;
 	int width = 1280;
 	int height = 720;
+	int slideNo = 0;
 	static String url = "src/3D_Models/HST-3DS/hst.3ds";
-	Graphics3DLayer g3dLayer;
+	Graphics3DLayer g3dLayer; //Would be arraylist is actual program but only one layer is required for this test
 	ArrayList<Model> models = new ArrayList<Model>();
 	
 	@Override
@@ -26,23 +25,24 @@ public class Graphics3D extends Application{
 		primaryStage = stage;
 		primaryStage.setTitle("3D Test");
 		GridPane gp = new GridPane();
+		//Create the buttons for interacting with the model
 		Button rotateModelLeft = new Button("rotateModelLeft");
 		Button rotateModelRight = new Button("rotateModelRight");
 		Button modelZoomIn = new Button("Zoom in");
 		Button modelZoomOut = new Button("Zoom out");
 		Button play = new Button("Pause");
 		
+		//Setup the actions from the buttons
 		rotateModelLeft.setOnMouseClicked(e-> rml());
 		rotateModelRight.setOnMouseClicked(e-> rmr());
 		modelZoomIn.setOnMouseClicked(e-> mzi());
 		modelZoomOut.setOnMouseClicked(e-> mzo());
 		play.setOnMouseClicked(e-> pause(play));
 		
-		//SubScene modelScene;
-		
+		//Create new Layer for this slide
 		g3dLayer = new Graphics3DLayer(width, (int) (0.9*height), models);
+		//Add new model to this layer
 		g3dLayer.add(url, 640, (int)(0.9*height), 200, 200);
-		g3dLayer.models.get(models.size());
 		
 		///////////////////// TESTING BUTTONS //////////////////////
 		gp.add(g3dLayer.get(), 1, 0);
@@ -54,6 +54,7 @@ public class Graphics3D extends Application{
 		gp.add(modelZoomOut, 4, 1);
 		gp.setAlignment(Pos.CENTER);
 		
+		//Centralise all elements in the gridpane
 		gp.setHalignment(modelZoomOut, HPos.CENTER);
 		gp.setHalignment(modelZoomIn, HPos.CENTER);
 		gp.setHalignment(rotateModelLeft, HPos.CENTER);
@@ -61,34 +62,38 @@ public class Graphics3D extends Application{
 		gp.setHalignment(play, HPos.CENTER);
 		gp.setHalignment(g3dLayer.get(), HPos.CENTER);
 		
+		//Create the new scene
 		Scene scene = new Scene(gp, width, height);
-		scene.setFill(Color.AQUA);
-		primaryStage.setScene(scene);
-		primaryStage.show();
+		primaryStage.setScene(scene); //Show the scene
+		primaryStage.show(); //Show the stage
 	}
 	
+	//Rotate Model Left
 	public void rml() {
-		g3dLayer.models.get(models.size()).rotate(0, 0, -20);
+		models.get(slideNo).rotate(0, 0, -20);
 	}
 	public void rmr() {
-		g3dLayer.models.get(models.size()).rotate(0, 0, 20);
+	//Rotate Model Right
+		models.get(slideNo).rotate(0, 0, 20);
 	}
+	//Model Zoom in
 	public void mzi() {
-		g3dLayer.models.get(models.size()).scale(1.1, 1.1, 1.1);
+		models.get(slideNo).scale(1.1, 1.1, 1.1);
 	}
+	//Model Zoom out
 	public void mzo() {
-		g3dLayer.models.get(models.size()).scale(0.9, 0.9, 0.9);
+		models.get(slideNo).scale(0.9, 0.9, 0.9);
 	}
+	//Play and pause the animation
 	public void pause(Button play) {
-		if(g3dLayer.models.get(models.size()).timeline.getStatus() == Status.RUNNING) {
-			g3dLayer.models.get(models.size()).timeline.pause();
+		if(models.get(slideNo).timeline.getStatus() == Status.RUNNING) {
+			models.get(slideNo).timeline.pause();
 			play.setText("Play");
 		}else {
 			play.setText("Pause");
-			g3dLayer.models.get(models.size()).timeline.play();
+			models.get(slideNo).timeline.play();
 		}
 	}
-	
 	
 	public static void main(String[] args) {
 		System.out.println("App Running...");

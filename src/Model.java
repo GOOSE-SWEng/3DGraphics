@@ -3,7 +3,6 @@ import java.util.ArrayList;
 import com.interactivemesh.jfx.importer.ModelImporter;
 import com.interactivemesh.jfx.importer.stl.StlMeshImporter;
 import com.interactivemesh.jfx.importer.tds.TdsModelImporter;
-import com.sun.media.sound.ModelWavetable;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -14,9 +13,7 @@ import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.input.PickResult;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.MeshView;
@@ -39,25 +36,20 @@ public class Model {
 	SubScene modelScene; //Scene of the model
 	int width; //Width of SubScene
 	int height; //Height of SubScene
-	int paneWidth;
-	int paneHeight;
-	int xStart;
-	int yStart;
-	Timeline timeline;
-	Canvas canvas;
+	int xStart; //X value for position
+	int yStart; //Y value for position
+	Timeline timeline; //Timeline for animations
 	Group modelGroup; //Group containing all 3D Elements
-	Camera camera;
+	Camera camera; //Camera for the model
 	ArrayList<InteractivePoints> points = new ArrayList<InteractivePoints>(); //Arraylist of interactive points
 	ArrayList<Sphere> spheres = new ArrayList<Sphere>(); //Arraylist of Sphere buttons
 	
-	public Model(String url, int modelWidth, int modelHeight, int paneWidth, int paneHeight, int xStart, int yStart){
+	public Model(String url, int modelWidth, int modelHeight, int xStart, int yStart){
 		this.width = modelWidth; //Width of SubScene
 		this.height = modelHeight; //Height of SubScene
-		this.paneWidth = paneWidth;
-		this.paneHeight = paneHeight;
 		this.xStart = xStart;
 		this.yStart = yStart;
-		modelScene = createModel(url); //Create the and store scene
+		modelScene = createModel(url); //Create the model and store scene
 	}
 	
 	//Method to create model scene
@@ -87,9 +79,11 @@ public class Model {
 			modelGroup.getChildren().addAll(cylinderHeadMeshView);
 	        //addPoints(); //Add clickable points
 		}
+		//FOR OBJ MODELS (MIGHT NEED)
 		else if(url.endsWith(".obj")) {
 			System.out.print("The OBJ file type is not supported right now.");
 		}
+		//FOR X3D MODELS (MIGHT NEED)
 		else if(url.endsWith(".X3D")) {
 			System.out.print("The X3D file type is not supported right now.");
 		}
@@ -100,6 +94,7 @@ public class Model {
         // Create Shape3D
 		System.out.println("Model Imported");
 		
+		//Initial transform
 		modelGroup.getTransforms().add(new Rotate(90, Rotate.X_AXIS));
 
         Translate pivot = new Translate(); //Create pivot
@@ -107,7 +102,9 @@ public class Model {
         Rotate yRotate = new Rotate(0, Rotate.Y_AXIS);
         Rotate xRotate = new Rotate(0, Rotate.X_AXIS);
         Rotate zRotate = new Rotate(0, Rotate.Z_AXIS);
+        //Add rotate translations to the camera
 		camera.getTransforms().addAll(pivot, yRotate, zRotate, xRotate);
+		//Place model in the middle of the subScene
 		camera.getTransforms().add(new Translate(-width/2,-height/2,-300));
 		
 		//Setup Animation
@@ -135,6 +132,7 @@ public class Model {
         //Play when mouse is off model
         modelGroup.setOnMouseExited(e->timeline.play());
         
+        //Zoom when scroll
         modelGroup.setOnScroll(e->{
         	if(e.getDeltaY() > 0) {
         		scale(1.1,1.1,1.1);
@@ -158,19 +156,23 @@ public class Model {
 		return modelGroup;
 	}
 	
+	//USEFUL FOR WHEN WE ADD BUTTONS TO MODELS
 	public void addPoints() {
-		for(int i=0;i<100;i++) {
+		//Will be used to cycle through preset points
+		/*for(int i=0;i<100;i++) {
 			
 		}
 		for(int i=0;i<100;i++) {
 			
-		}
+		}*/
+		//Add the default points
 		points.add(new InteractivePoints(-160,-170,30));
 		points.add(new InteractivePoints(-40,200,100));
 		points.add(new InteractivePoints(60,-160,50));
 		points.add(new InteractivePoints(180,-100,90));
-		PhongMaterial mat = new PhongMaterial();
+		PhongMaterial mat = new PhongMaterial(); //Create translucent material
 		mat.setDiffuseColor(Color.rgb(180, 180, 0, 0.75));
+		//Create button spheres
 		Sphere point1 = new Sphere();
 		Sphere point2 = new Sphere();
 		Sphere point3 = new Sphere();
@@ -180,6 +182,7 @@ public class Model {
 		point3.setMaterial(mat);
 		point4.setMaterial(mat);
 		
+		//Setup sphere size and location
 		point1.setRadius(40);
 		point1.getTransforms().add(new Translate(points.get(0).getX(),points.get(0).getY(),points.get(0).getZ()));
 		
@@ -191,7 +194,8 @@ public class Model {
 
 		point4.setRadius(40);
 		point4.getTransforms().add(new Translate(points.get(3).getX(),points.get(3).getY(),points.get(3).getZ()));
-		modelGroup.getChildren().addAll(point1, point2,point3, point4);
+		
+		modelGroup.getChildren().addAll(point1, point2,point3, point4); //Add spheres to the model
 	}
 	
 	//Rotate Camera function
